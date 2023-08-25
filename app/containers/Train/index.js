@@ -77,7 +77,7 @@ export function Train() {
     setOutput(output)
   }
 
-  const train = (input,output) =>{
+  const train = async(input,output) =>{
 
     let inputTensor=tf.tensor3d(input);
     let outputTensor=tf.tensor1d(output);
@@ -86,10 +86,18 @@ export function Train() {
 
     let model = tf.sequential();
 
+    let flat= tf.layers.flatten({
+        inputShape:[125, 3],
+    })
+
     let hidden = tf.layers.dense({
-      units:3,
+      units:125,
+      activation:'relu',
+    })
+
+    let hidden2 = tf.layers.dense({
+      units:125,
       activation:'sigmoid',
-      inputShape:[125, 3]
     })
 
     let outputlayer = tf.layers.dense({
@@ -97,24 +105,38 @@ export function Train() {
       activation:'sigmoid'
     })
 
+
+    //model.add(tf.layers.reshape({targetShape:[125,3], inputShape:[125,3]}))
+
+    model.add(tf.layers.conv1d({kernelSize:2,filters:2,activation:'relu',inputShape:[125,3]}))
+    model.add(tf.layers.maxPooling1d({poolSize:4}))
+
+    model.add(flat);
     model.add(hidden);
+    model.add(tf.layers.dropout({rate:0.5}))
+    model.add(hidden2);
     model.add(outputlayer);
+
+
     model.compile({
-      optimizer: 'sgd',
-      loss: 'categoricalCrossentropy',
-      metrics: ['accuracy']
+      optimizer: 'adam',
+      loss: 'binaryCrossentropy',
+      metrics:['accuracy']
     });
 
-    // Train the model.
-    function onBatchEnd(batch, logs) {
-      console.log('Accuracy', logs.acc);
-    }
+    model.summary()
+
     
     // Train for 5 epochs with batch size of 32.
-    model.fit(inputTensor, outputTensor, {
-       epochs: 5,
-       batchSize: 32,
+   await model.fit(inputTensor, outputTensor, {
+        epochs: 50,
+        callbacks: {
+            onEpochEnd: (epoch, log) => console.log(`Epoch ${epoch}: accuracy = ${log.acc}`)
+        }
     });
+
+    await model.save('localstorage://my-model');
+
   }
 
   return <div />;

@@ -5,17 +5,23 @@
  */
 
 import React, { useEffect, useState, useRef } from 'react';
+
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { compose } from 'redux';
 import Webcam from "react-webcam";
-import * as faceapi from 'face-api.js';
+import * as tf from '@tensorflow/tfjs';
+import * as faceapi from '@vladmandic/face-api';
 import * as faceLandmarksDetection from "@tensorflow-models/face-landmarks-detection";
 import { getDatabase, ref, set,get,child } from "firebase/database";
 
 
+
+
 var landmarkDetector;
 var labeledFaceDescriptors;
+var attentioModel;
+
 export function Main() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [loaded, setLoaded] = useState(false);
@@ -36,6 +42,7 @@ export function Main() {
         await faceapi.loadFaceLandmarkModel(MODEL_URL),
         await faceapi.loadFaceRecognitionModel(MODEL_URL),
         landmarkDetector = await faceLandmarksDetection.createDetector(model, detectorConfig),
+        attentioModel = await tf.loadLayersModel('localstorage://my-model'),
       ]).then(setModelLoaded(true));
     }
     loadModels();
@@ -145,8 +152,19 @@ export function Main() {
     const faces = await landmarkDetector.estimateFaces(image);
     if(faces.length>0 && label != "unknown"){
       const data=filter(faces);
+
+      let col=[]
+      data.forEach(element => {
+        let raw=[element['x'],element['y'],element['z']]
+        col.push(raw)
+      });
+
+      let inputTensor=tf.tensor3d([col]);
+      let res=attentioModel.predict(inputTensor).dataSync();
+
+      console.log(res);
       // console.log(label,data,time)
-      writeUserData(data, label,time)
+      //writeUserData(data, label,time)
     }
     
   }
