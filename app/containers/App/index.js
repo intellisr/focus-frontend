@@ -12,11 +12,12 @@ import { Switch, Route } from 'react-router-dom';
 
 // import NotFoundPage from 'containers/NotFoundPage/Loadable';
 import Main from '../Main/index';
-import Attention from '../Attention/index';
+// import Attention from '../Attention/index';
 import GlobalStyle from '../../global-styles';
 import logo from '../../images/FocusLogo.png';
 import { initializeApp } from "firebase/app";
-import Train from '../Train/index'
+import Train from '../Train/index';
+import dashboard from '../Dashboard/index';
 
 const AppWrapper = styled.div``;
 
@@ -41,7 +42,7 @@ const app = initializeApp(firebaseConfig);
       <img src={logo} alt="Logo" height={'100px'}/>
       <Switch>
         <Route exact path="/" component={Main} />
-        <Route path="/second" component={Attention} />
+        <Route path="/dashboard" component={dashboard} />
         <Route path="/train" component={Train} />
         {/* <Route path="" component={NotFoundPage} /> */}
       </Switch>
