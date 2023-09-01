@@ -162,9 +162,15 @@ export function Main() {
       let inputTensor=tf.tensor3d([col]);
       let res=attentioModel.predict(inputTensor).dataSync();
 
-      console.log(res);
-      // console.log(label,data,time)
-      //writeUserData(data, label,time)
+      console.log(res[0]);
+      if(res[0]>0.2){
+          console.log("attentioned")
+          writeUserData(1, label,time)
+      }else{
+        console.log("Not attentioned") 
+          writeUserData(0, label,time)     
+      }
+
     }
     
   }
@@ -188,7 +194,7 @@ export function Main() {
     const lecture="ST2"
     
     const db = getDatabase();
-    set(ref(db, 'usersLive/'+lecture+"/"+label), {
+    set(ref(db, 'usersLive/'+lecture+"/"+label+"/"+r), {
       data: data,
       time: time,
     });

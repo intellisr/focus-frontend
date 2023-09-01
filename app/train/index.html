@@ -70,11 +70,11 @@ const train = async(input,output) =>{
 
 
     model.add(tf.layers.conv1d({kernelSize:2,filters:2,activation:'relu',inputShape:[125,3]}))
-    model.add(tf.layers.maxPooling1d({poolSize:4}))
+    model.add(tf.layers.maxPooling1d({poolSize:2}))
 
     model.add(flat);
     model.add(hidden);
-    model.add(tf.layers.dropout({rate:0.5}))
+    //model.add(tf.layers.dropout({rate:0.5}))
     model.add(hidden2);
     model.add(outputlayer);
 
@@ -90,13 +90,13 @@ const train = async(input,output) =>{
     
     // Train for 5 epochs with batch size of 32.
    await model.fit(inputTensor, outputTensor, {
-        epochs: 50,
+        epochs: 100,
         callbacks: {
             onEpochEnd: (epoch, log) => console.log(`Epoch ${epoch}: accuracy = ${log.acc}`)
         }
     });
 
-    await model.save('localstorage://my-model');
+    //await model.save('localstorage://my-model');
 
 }
     

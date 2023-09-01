@@ -131,7 +131,7 @@ export function Train() {
    await model.fit(inputTensor, outputTensor, {
         epochs: 50,
         callbacks: {
-            onEpochEnd: (epoch, log) => console.log(`Epoch ${epoch}: accuracy = ${log.acc}`)
+            onEpochEnd: (epoch, log) => console.log(`Epoch ${epoch}: Accuracy = ${log.acc}`)
         }
     });
 
