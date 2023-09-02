@@ -16,39 +16,93 @@ import Stack from '@mui/material/Stack';
 import Stepper from '@mui/material/Stepper';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
+import { Chart } from "react-google-charts";
+
+
+export const options = {
+  chart: {
+    title: "Chapter wise students attention level",
+    subtitle: "Thease are the bla bla bla",
+  },
+};
+
+export const dataxyx = [
+  ["Year", "Sales", "Expenses", "Profit"],
+  ["2014", 1000, 400, 200],
+  ["2015", 1170, 460, 250],
+  ["2016", 660, 1120, 300],
+  ["2017", 1030, 540, 350],
+];
 
 
 export function Dashboard() {
   const [status, setStatus] = useState(0);
   const [data, setData] = useState({});
-  const [fbdata, setFbdata] = useState({});
+  const [fbdata, setFbdata] = useState([]);
   const [users, setUsers] = useState({});
 
   useEffect(() => {
 
-    const fetchOptions_ = Object.assign(
-      {},
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+    const getdata = async () => {
+
+      const fetchOptions_ = Object.assign(
+        {},
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      },
-    );
-    fetch(
-      `http://localhost:8000/dashboard`,
-      fetchOptions_,
-    ).then(response => {
-      console.log(response.json())
-      //setData(response.json())
-    });
+      );
+
+      let response = await fetch(
+        `http://localhost:8000/dashboard`,
+        fetchOptions_,
+      );
+
+      const apidata = await response.json();
+
+      let alldxd=[]
+      let one=Object.values(apidata)[0]
+      let temp=['Chapters']
+      Object.keys(one).map((v)=>{
+        temp.push(v)
+      })
+      alldxd.push(temp)
+
+
+      Object.keys(apidata).map((key)=>{
+        let newArr=[]
+        newArr.push("Passage "+key)
+        Object.values(apidata[key]).map((val)=>{
+          newArr.push(val)
+        })
+        alldxd.push(newArr)
+      })
+
+      console.log(alldxd)
+      setData(alldxd)
+
+    }
+
+    getdata();
 
 
     const dbRef = ref(getDatabase());
     get(child(dbRef, `alldata/lecture1`)).then((snapshot) => {
       if (snapshot.exists()) {
-        // console.log(snapshot.val());
-        setFbdata(snapshot.val())
+
+        const alld = snapshot.val()
+        let allPass = []
+        let mcq = {}
+        for (let i = 1; i < Object.keys(alld).length; i++) {
+          allPass.push(alld['passage-' + i])
+          if (alld['passage-' + i]['QNA']) {
+            mcq['q' + i] = alld['passage-' + i]['QNA']['questions'];
+          }
+        }
+
+        setFbdata(allPass)
       } else {
         console.log("No data available");
       }
@@ -85,9 +139,9 @@ export function Dashboard() {
         <div>
           <h2>Dashboard</h2>
           <div>
-            <Box sx={{ width: '100%',marginLeft:10 }}>       
+            <Box sx={{ width: '100%', marginLeft: 10 }}>
               <Stepper activeStep={10} alternativeLabel>
-              <h4>Attendance List</h4>
+                <h4>Attendance List</h4>
                 {Object.keys(users).map(key => (
                   <Step key={key}>
                     <StepLabel>{key}</StepLabel>
@@ -96,30 +150,37 @@ export function Dashboard() {
               </Stepper>
             </Box>
           </div>
-
-          {Object.keys(fbdata).map(key => (
-            <div>
-              <h2>{key}</h2>
-              <h3>{fbdata[key].Name}</h3>
-              <h4>{fbdata[key].Passage}</h4>
-              {/* 
-              {Object.values(fbdata[key].QNA.questions).map(val=> (
-                <>
-                  {val.map(q=>(
-                    <h5>{q} </h5>
-                  ))}                
-                </>
-              ))}  */}
-            </div>
-          ))}
-
-          {Object.keys(data).map(dataaas => (
-            <div>
-              <h2>{dataaas}</h2>
-              <h3>{data[dataaas].Name}</h3>
-              <h4>{data[dataaas].Passage}</h4>
-            </div>
-          ))}
+          <br/>
+          <Box sx={{ width: '100%', marginLeft: 10 }}>
+            {data && (
+              <Chart
+                chartType="Bar"
+                width="100%"
+                height="400px"
+                data={data}
+                options={options}
+              />
+            )}
+          </Box>
+          <br/>
+          <Box sx={{ width: '100%', marginLeft: 10 }}>
+            <h2>Theory</h2>
+            {fbdata && fbdata.map((value, index) => (
+              <div>
+                <h3>{`Subsection ${index + 1} : ${value.Name}`}</h3>
+                <h4>{value.Passage}</h4>
+                {value.QNA && Object.values(value.QNA.questions).map((val, index) => (
+                  <>
+                    <h5>{`Q${index + 1}. ${val.question_statement}`}</h5>
+                    <h6>{`1. Right Answer: ${val.answer}`} </h6>
+                    {val.options.map((q, index) => (
+                      <h6>{`${index + 2}. Wrong Answers: ${q}`} </h6>
+                    ))}
+                  </>
+                ))}
+              </div>
+            ))}
+          </Box>
 
         </div>
       ) : (
