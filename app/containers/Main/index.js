@@ -220,22 +220,36 @@ export function Main() {
 
   const startAll = () =>{
     setModelLoaded(true);
-    // const fetchOptions_ = Object.assign(
-    //   {},
-    //   {
-    //     method: 'GET',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //   },
-    // );
-    // fetch(
-    //   `http://localhost:8000/proccess`,
-    //   fetchOptions_,
-    // ).then(response => console.log('start', response));
+    const fetchOptions_ = Object.assign(
+      {},
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    fetch(
+      `http://localhost:8000/start`,
+      fetchOptions_,
+    ).then(response => console.log('start', response));
   }
 
   const endAndProssess = () =>{
+
+    const fetchOptions_0 = Object.assign(
+      {},
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+    fetch(
+      `http://localhost:8000/stop`,
+      fetchOptions_0,
+    ).then(response => console.log('end', response.json()));
 
     const fetchOptions_ = Object.assign(
       {},
