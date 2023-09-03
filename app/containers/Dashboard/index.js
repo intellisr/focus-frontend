@@ -26,14 +26,6 @@ export const options = {
   },
 };
 
-export const dataxyx = [
-  ["Year", "Sales", "Expenses", "Profit"],
-  ["2014", 1000, 400, 200],
-  ["2015", 1170, 460, 250],
-  ["2016", 660, 1120, 300],
-  ["2017", 1030, 540, 350],
-];
-
 
 export function Dashboard() {
   const [status, setStatus] = useState(0);
@@ -169,7 +161,7 @@ export function Dashboard() {
               <div>
                 <h3>{`Subsection ${index + 1} : ${value.Name}`}</h3>
                 <h4>{value.Passage}</h4>
-                {value.QNA && Object.values(value.QNA.questions).map((val, index) => (
+                {value.QNA && value.QNA.questions && Object.values(value.QNA.questions).map((val, index) => (
                   <>
                     <h5>{`Q${index + 1}. ${val.question_statement}`}</h5>
                     <h6>{`1. Right Answer: ${val.answer}`} </h6>
